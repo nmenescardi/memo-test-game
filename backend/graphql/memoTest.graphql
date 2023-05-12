@@ -1,0 +1,31 @@
+type MemoTest {
+    id: ID!
+    name: String!
+    images: [String!]!
+}
+
+input NewMemoTest {
+    name: String!
+    images: [String!]!
+}
+
+input UpdateMemoTest {
+    id: ID!
+    name: String
+    images: [String!]
+}
+
+extend type Mutation {
+    createMemoTest(input: NewMemoTest! @spread): MemoTest @create
+    updateMemoTest(input: UpdateMemoTest! @spread): MemoTest @update
+    deleteMemoTest(id: ID! @whereKey): MemoTest @delete
+}
+
+extend type Query {
+    memoTests: [MemoTest!]! @all
+
+    memoTest(
+      "Search by primary key."
+      id: ID @eq
+    ): MemoTest @find
+}

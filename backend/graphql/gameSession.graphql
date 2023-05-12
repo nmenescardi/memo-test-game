@@ -1,0 +1,46 @@
+enum GameState {
+    Started
+    Completed
+}
+
+type GameSession {
+    id: ID!
+    memo_test_id: ID!
+    retries: Int!
+    number_of_pairs: Int!
+    state: GameState!
+    user: User! @belongsTo
+    memoTest: MemoTest! @belongsTo
+}
+
+input NewGameSession {
+    memo_test_id: ID!
+    retries: Int!
+    number_of_pairs: Int!
+    state: GameState!
+    user_id: ID!
+}
+
+input UpdateGameSession {
+    id: ID!
+    retries: Int
+    number_of_pairs: Int
+    state: GameState
+}
+
+input EndGameSession {
+    id: ID!
+    state: GameState!
+}
+
+extend type Mutation {
+    createGameSession(input: NewGameSession! @spread): GameSession @create
+    updateGameSession(input: UpdateGameSession! @spread): GameSession @update
+    endGameSession(input: EndGameSession! @spread): GameSession @update
+    deleteGameSession(id: ID! @whereKey): GameSession @delete
+}
+
+extend type Query {
+    gameSessions: [GameSession!]! @all
+    gameSession(id: ID @eq): GameSession @find
+}

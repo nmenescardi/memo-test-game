@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class MemoTest extends Model
 {
     use HasFactory;
+
+    protected $casts = [
+        'images' => 'array',
+    ];
 }
