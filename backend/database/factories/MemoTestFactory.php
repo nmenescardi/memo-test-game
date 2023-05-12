@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\MemoTest;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class MemoTestFactory extends Factory
 {
+    protected $model = MemoTest::class;
+
     /**
      * Define the model's default state.
      *
