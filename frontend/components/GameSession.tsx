@@ -37,7 +37,12 @@ const GameSession = ({ gameId, isNewGame }: { gameId: string; isNewGame?: boolea
     }
   }, [isNewGameSession, currentSession]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
   if (error) return <p>Error :(</p>;
 
   const { memoTest } = data;

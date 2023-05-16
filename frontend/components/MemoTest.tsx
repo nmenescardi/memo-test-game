@@ -25,9 +25,11 @@ export const MemoTest: React.FC<MemoTestProps> = ({ memoTest }) => {
           <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: true } }}>Start</Link>
         </Button>
         {isOngoingSession && (
-          <Button variant="contained">
-            <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: false } }}>Continue</Link>
-          </Button>
+          <span className="ml-3">
+            <Button variant="contained">
+              <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: false } }}>Continue</Link>
+            </Button>
+          </span>
         )}
       </div>
     </div>
