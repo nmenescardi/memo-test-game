@@ -1,6 +1,7 @@
 'use client';
 import { Button } from '@mui/material';
 import { MemoTest as MemoTestType } from '@/types';
+import Link from 'next/link';
 
 type MemoTestProps = {
   memoTest: MemoTestType;
@@ -14,7 +15,9 @@ export const MemoTest: React.FC<MemoTestProps> = ({ memoTest }) => {
         <p>{memoTest.highestScore ? `Highest score:  ${memoTest.highestScore}` : null}</p>
       </div>
       <div>
-        <Button variant="contained">Start</Button>
+        <Button variant="contained">
+          <Link href={`/game/${memoTest.id}`}>Start</Link>
+        </Button>
       </div>
     </div>
   );

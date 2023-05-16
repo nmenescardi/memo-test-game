@@ -15,7 +15,7 @@ export default function MemoTests() {
 
   return (
     <div className="bg-white rounded shadow-md p-6 w-full md:w-3/4 lg:w-1/2">
-      <h1 className="text-2xl font-bold mb-4">Memo Test Games</h1>
+      <h1 className="text-xl mb-4">Select a game to start playing: </h1>
       {memoTests?.map((memoTest) => (
         <MemoTest key={memoTest.id} memoTest={memoTest} />
       ))}
