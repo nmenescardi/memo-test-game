@@ -13,7 +13,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Provider>{children}</Provider>
+        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+          <div className="w-[95vw]">
+            <h1 className="text-4xl text-center mb-10">Memo Test Game</h1>
+            <Provider>
+              <main>{children}</main>
+            </Provider>
+          </div>
+        </div>
       </body>
     </html>
   );
