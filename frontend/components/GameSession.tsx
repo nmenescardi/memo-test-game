@@ -5,13 +5,22 @@ import { useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemoTest } from '@/graphql/queries';
 import Card from './Card';
+import { Card as CardType } from '@/types';
 import { RootState } from '@/store/store';
 import { startGame } from '@/features/currentSession/currentSessionSlice';
+import { createPairs } from '@/lib/createPairs';
+import Link from 'next/link';
 
-const GameSession = ({ gameId, isNewGame }: { gameId: string; isNewGame?: boolean | string }) => {
+interface GameSessionProps {
+  gameId: string;
+  isNewGame?: boolean | string;
+}
+
+const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const dispatch = useDispatch();
   const currentSession = useSelector((state: RootState) => state.currentSession);
-  const [game, setGame] = useState({});
+
+  const cards = currentSession?.cards;
 
   const isNewGameSession = isNewGame === 'false' ? false : Boolean(isNewGame);
 
@@ -20,22 +29,15 @@ const GameSession = ({ gameId, isNewGame }: { gameId: string; isNewGame?: boolea
   });
 
   useEffect(() => {
-    if (isNewGameSession) {
+    if (isNewGameSession && data) {
+      const cards = createPairs(data?.memoTest?.images);
       const newGame = {
         gameId,
-        boardStatus: [],
+        cards,
       };
       dispatch(startGame(newGame));
-
-      setGame(newGame);
     }
-  }, [isNewGameSession, gameId, dispatch]);
-
-  useEffect(() => {
-    if (!isNewGameSession) {
-      setGame(currentSession);
-    }
-  }, [isNewGameSession, currentSession]);
+  }, [isNewGameSession, gameId, dispatch, data]);
 
   if (loading)
     return (
@@ -47,15 +49,20 @@ const GameSession = ({ gameId, isNewGame }: { gameId: string; isNewGame?: boolea
 
   const { memoTest } = data;
 
-  //TODO get pairs from images
-
   return (
     <div className="flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold mb-4">{memoTest.name}</h2>
-      <div className="grid grid-cols-4 gap-4">
-        {memoTest?.images.map((image: string) => (
-          <Card key={image} image={image} />
+      <h2 className="text-2xl font-bold mb-4">Game: {memoTest.name}</h2>
+
+      <div className="grid grid-cols-5 gap-4">
+        {cards?.map((card) => (
+          <Card key={card.position} {...card} />
         ))}
+      </div>
+
+      <div className="flex flex-col items-center justify-center">
+        <Link href={{ pathname: '/' }} className="mt-10">
+          ← Back Home
+        </Link>
       </div>
     </div>
   );

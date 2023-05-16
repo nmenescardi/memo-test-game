@@ -4,3 +4,9 @@ export interface MemoTest {
   images: string[];
   highestScore: number;
 }
+
+export interface Card {
+  position: number;
+  imageUrl: string;
+  status: 'covered' | 'uncovered' | 'matched';
+}
