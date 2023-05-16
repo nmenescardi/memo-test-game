@@ -1,7 +1,8 @@
 'use client';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { Provider as StoreProvider } from 'react-redux';
-import { store } from '@/store/store';
+import { store, persistor } from '@/store/store';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const uri = process.env.API_URL || 'http://localhost/graphql';
 export const Provider = ({ children }: { children: React.ReactNode }) => {
@@ -12,7 +13,9 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <StoreProvider store={store}>
-      <ApolloProvider client={client}>{children}</ApolloProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ApolloProvider client={client}>{children}</ApolloProvider>
+      </PersistGate>
     </StoreProvider>
   );
 };
