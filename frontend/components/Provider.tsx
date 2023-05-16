@@ -1,6 +1,7 @@
 'use client';
-import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { Provider as StoreProvider } from 'react-redux';
+import { store } from '@/store/store';
 
 const uri = process.env.API_URL || 'http://localhost/graphql';
 export const Provider = ({ children }: { children: React.ReactNode }) => {
@@ -9,5 +10,9 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
     cache: new InMemoryCache(),
   });
 
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+  return (
+    <StoreProvider store={store}>
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    </StoreProvider>
+  );
 };

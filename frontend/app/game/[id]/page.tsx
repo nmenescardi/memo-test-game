@@ -1,6 +1,19 @@
 import GameSession from '@/components/GameSession';
 
-export default function GameSessionPage({ params }: { params: { id: string } }) {
+type GameSessionPageProps = {
+  params: {
+    id: string;
+  };
+  searchParams: {
+    isNewGame?: boolean;
+  };
+};
+
+const GameSessionPage: React.FC<GameSessionPageProps> = ({ params, searchParams }) => {
   const { id } = params;
-  return <GameSession gameId={id} />;
-}
+
+  const { isNewGame = false } = searchParams;
+  return <GameSession gameId={id} isNewGame={isNewGame} />;
+};
+
+export default GameSessionPage;
