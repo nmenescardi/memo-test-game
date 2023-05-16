@@ -21,14 +21,15 @@ export const MemoTest: React.FC<MemoTestProps> = ({ memoTest }) => {
         <p>{memoTest.highestScore ? `Highest score: ${memoTest.highestScore}` : null}</p>
       </div>
       <div>
-        <Button variant="contained">
-          <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: true } }}>Start</Link>
-        </Button>
+        <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: true } }}>
+          <Button variant="contained">Start</Button>
+        </Link>
+
         {isOngoingSession && (
           <span className="ml-3">
-            <Button variant="contained">
-              <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: false } }}>Continue</Link>
-            </Button>
+            <Link href={{ pathname: `/game/${memoTest.id}`, query: { isNewGame: false } }}>
+              <Button variant="contained">Continue</Button>
+            </Link>
           </span>
         )}
       </div>

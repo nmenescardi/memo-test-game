@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Card } from '@/types';
+import { Card, StatusEnum } from '@/types';
 
 interface CurrentSessionState {
   gameId: string | null;
@@ -33,9 +33,15 @@ const currentSessionSlice = createSlice({
       state.cards = [];
       state.retryCount = 0;
     },
+    modifyStatus: (state, action: PayloadAction<{ position: number; status: StatusEnum }>) => {
+      const card = state.cards.find((card) => card.position === action.payload.position);
+      if (card) {
+        card.status = action.payload.status;
+      }
+    },
   },
 });
 
-export const { startGame, updateCards, incrementRetryCount, endGame } = currentSessionSlice.actions;
+export const { startGame, updateCards, incrementRetryCount, endGame, modifyStatus } = currentSessionSlice.actions;
 
 export default currentSessionSlice.reducer;

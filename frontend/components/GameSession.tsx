@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemoTest } from '@/graphql/queries';
 import Card from './Card';
-import { Card as CardType } from '@/types';
+import { Card as CardType, StatusEnum } from '@/types';
 import { RootState } from '@/store/store';
 import { startGame } from '@/features/currentSession/currentSessionSlice';
 import { createPairs } from '@/lib/createPairs';
 import Link from 'next/link';
+import { modifyStatus } from '@/features/currentSession/currentSessionSlice';
 
 interface GameSessionProps {
   gameId: string;
@@ -18,15 +19,45 @@ interface GameSessionProps {
 
 const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const dispatch = useDispatch();
-  const currentSession = useSelector((state: RootState) => state.currentSession);
+  const cards = useSelector((state: RootState) => state.currentSession.cards);
 
-  const cards = currentSession?.cards;
+  const flippedCards = useRef<number[]>([]);
 
   const isNewGameSession = isNewGame === 'false' ? false : Boolean(isNewGame);
 
   const { loading, error, data } = useQuery(getMemoTest, {
     variables: { id: gameId },
   });
+
+  const handleClick = (position: number) => {
+    if (flippedCards.current.length === 0) {
+      flippedCards.current = [position];
+      dispatch(modifyStatus({ position, status: 'uncovered' }));
+    } else if (flippedCards.current.length === 1) {
+      const first = flippedCards.current[0];
+
+      flippedCards.current.push(position);
+      dispatch(modifyStatus({ position, status: 'uncovered' }));
+
+      // Dispatch an async function after a delay to give user time to see the cards
+      setTimeout(() => {
+        let status: StatusEnum;
+        if (cards[first - 1]?.imageUrl === cards[position - 1]?.imageUrl) {
+          status = 'matched';
+        } else {
+          status = 'covered';
+        }
+
+        // TODO Increase the retry count
+        // dispatch(incrementRetryCount());
+
+        dispatch(modifyStatus({ position: first, status }));
+        dispatch(modifyStatus({ position, status }));
+
+        flippedCards.current = [];
+      }, 200);
+    }
+  };
 
   useEffect(() => {
     if (isNewGameSession && data) {
@@ -55,7 +86,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
 
       <div className="grid grid-cols-5 gap-4">
         {cards?.map((card) => (
-          <Card key={card.position} {...card} />
+          <Card key={card.position} handleClick={handleClick} {...card} />
         ))}
       </div>
 

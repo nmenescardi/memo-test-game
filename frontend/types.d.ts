@@ -5,8 +5,10 @@ export interface MemoTest {
   highestScore: number;
 }
 
+export type StatusEnum = 'covered' | 'uncovered' | 'matched';
 export interface Card {
   position: number;
   imageUrl: string;
-  status: 'covered' | 'uncovered' | 'matched';
+  status: StatusEnum;
+  isFlipped: boolean;
 }
