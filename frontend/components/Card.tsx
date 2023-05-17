@@ -2,35 +2,29 @@
 
 import NextImage from 'next/image';
 import { Card as CardType } from '@/types';
+import ReactCardFlip from 'react-card-flip';
 
 interface CardProps extends CardType {
   handleClick: (position: number) => void;
 }
+
 const Card: React.FC<CardProps> = ({ imageUrl, position, status, handleClick }) => {
-  const shouldShowImage = status === 'uncovered' || status === 'matched';
+  const isFlipped = status === 'uncovered' || status === 'matched';
 
   return (
-    <div
-      className={`w-40 h-40 bg-gray-200 flex items-center justify-center relative ${
-        status === 'uncovered' ? 'bg-blue-500' : ''
-      }`}
-    >
-      <NextImage
-        src={imageUrl}
-        alt="card"
-        fill
-        style={{ objectFit: 'cover', display: shouldShowImage ? 'initial' : 'none' }}
-        priority={true}
-      />
-      {!shouldShowImage && (
-        <div
-          className="w-full h-full flex justify-center items-center cursor-pointer text-xl bg-gray-200"
-          onClick={() => handleClick(position)}
-        >
-          {position}
-        </div>
-      )}
-    </div>
+    <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
+      <div
+        key="front"
+        className="w-40 h-40 bg-gray-200 flex items-center justify-center cursor-pointer"
+        onClick={() => handleClick(position)}
+      >
+        {position}
+      </div>
+
+      <div key="back" className="w-40 h-40 bg-blue-500 flex items-center justify-center relative">
+        <NextImage src={imageUrl} alt="card" layout="fill" objectFit="cover" priority={true} />
+      </div>
+    </ReactCardFlip>
   );
 };
 
