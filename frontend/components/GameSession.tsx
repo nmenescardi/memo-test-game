@@ -59,7 +59,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
         dispatch(modifyStatus({ position, status }));
 
         flippedCards.current = [];
-      }, 400);
+      }, 800);
     }
   };
 

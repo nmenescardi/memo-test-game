@@ -1,24 +1,30 @@
 'use client';
 
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { Card as CardType } from '@/types';
 
 interface CardProps extends CardType {
   handleClick: (position: number) => void;
 }
-
 const Card: React.FC<CardProps> = ({ imageUrl, position, status, handleClick }) => {
+  const shouldShowImage = status === 'uncovered' || status === 'matched';
+
   return (
     <div
-      className={`w-16 h-16 bg-gray-200 flex items-center justify-center ${
+      className={`w-40 h-40 bg-gray-200 flex items-center justify-center relative ${
         status === 'uncovered' ? 'bg-blue-500' : ''
       }`}
     >
-      {status === 'uncovered' || status === 'matched' ? (
-        <Image src={imageUrl} alt="card" width="64" height="64" />
-      ) : (
+      <NextImage
+        src={imageUrl}
+        alt="card"
+        fill
+        style={{ objectFit: 'cover', display: shouldShowImage ? 'initial' : 'none' }}
+        priority={true}
+      />
+      {!shouldShowImage && (
         <div
-          className="w-full h-full flex justify-center items-center cursor-pointer"
+          className="w-full h-full flex justify-center items-center cursor-pointer text-xl bg-gray-200"
           onClick={() => handleClick(position)}
         >
           {position}
