@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemoTest } from '@/graphql/queries';
+import { createGameSession, endGameSession, updateGameSession } from '@/graphql/mutations';
 import Card from './Card';
 import EndGameModal from './EndGameModal';
 import { StatusEnum } from '@/types';
@@ -23,8 +24,14 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const dispatch = useDispatch();
   const cards = useSelector((state: RootState) => state.currentSession.cards);
   const retryCount = useSelector((state: RootState) => state.currentSession.retryCount);
+  const sessionId = useSelector((state: RootState) => state.currentSession.sessionId);
+
   const score = calculateScore(retryCount, cards.length);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const [createSession] = useMutation(createGameSession);
+  const [endSession] = useMutation(endGameSession);
+  const [updateSession] = useMutation(updateGameSession);
 
   const flippedCards = useRef<number[]>([]);
 
@@ -34,7 +41,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
     variables: { id: gameId },
   });
 
-  const handleClick = (position: number) => {
+  const handleClick = async (position: number) => {
     if (flippedCards.current.length === 0) {
       flippedCards.current = [position];
       dispatch(modifyStatus({ position, status: 'uncovered' }));
@@ -44,6 +51,17 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
       flippedCards.current.push(position);
       dispatch(modifyStatus({ position, status: 'uncovered' }));
 
+      // Increment count
+      await updateSession({
+        variables: {
+          input: {
+            id: sessionId,
+            retries: retryCount + 1,
+          },
+        },
+      });
+      dispatch(incrementRetryCount());
+
       // Dispatch an async function after a delay to give user time to see the cards
       setTimeout(() => {
         let status: StatusEnum;
@@ -52,8 +70,6 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
         } else {
           status = 'covered';
         }
-
-        dispatch(incrementRetryCount());
 
         dispatch(modifyStatus({ position: first, status }));
         dispatch(modifyStatus({ position, status }));
@@ -66,20 +82,57 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   useEffect(() => {
     if (isNewGameSession && data) {
       const cards = createPairs(data?.memoTest?.images);
-      const newGame = {
-        gameId,
-        cards,
+
+      const handleCreateSession = async () => {
+        try {
+          const response = await createSession({
+            variables: {
+              input: {
+                memo_test_id: data?.memoTest?.id,
+                retries: 0,
+                number_of_pairs: data?.memoTest?.images.length,
+                state: 'Started',
+                user_id: 1,
+              },
+            },
+          });
+
+          const newGame = {
+            gameId,
+            cards,
+            sessionId: response.data.createGameSession.id,
+          };
+
+          dispatch(startGame(newGame));
+        } catch (error) {
+          console.error(error);
+          // TODO: Add UI error indicator and CTA to retry
+        }
       };
-      dispatch(startGame(newGame));
+
+      handleCreateSession();
     }
-  }, [isNewGameSession, gameId, dispatch, data]);
+  }, [isNewGameSession, gameId, dispatch, data, createSession]);
 
   const allCardsMatched = cards.length > 0 && cards.every((card) => card.status === 'matched');
 
-  const endGameCallback = useCallback(() => {
-    // setModalOpen(false);
-    dispatch(endGame());
-  }, [dispatch]);
+  const endGameCallback = useCallback(async () => {
+    try {
+      await endSession({
+        variables: {
+          input: {
+            id: sessionId,
+            state: 'Completed',
+          },
+        },
+      });
+
+      dispatch(endGame());
+    } catch (error) {
+      console.error(error);
+      // TODO: Add UI error indicator and CTA to retry
+    }
+  }, [dispatch, sessionId, endSession]);
 
   useEffect(() => {
     if (allCardsMatched) {

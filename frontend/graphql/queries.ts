@@ -5,7 +5,7 @@ export const getMemoTests = gql`
     memoTests {
       id
       name
-      images
+      highestScore
     }
   }
 `;

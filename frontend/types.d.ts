@@ -10,5 +10,4 @@ export interface Card {
   position: number;
   imageUrl: string;
   status: StatusEnum;
-  isFlipped: boolean;
 }

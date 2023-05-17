@@ -2,6 +2,7 @@ type MemoTest {
     id: ID!
     name: String!
     images: [String!]!
+    highestScore: Int! @method(name: "highestScore")
 }
 
 input NewMemoTest {
@@ -24,8 +25,5 @@ extend type Mutation {
 extend type Query {
     memoTests: [MemoTest!]! @all
 
-    memoTest(
-      "Search by primary key."
-      id: ID @eq
-    ): MemoTest @find
+    memoTest("Search by primary key." id: ID @eq): MemoTest @find
 }

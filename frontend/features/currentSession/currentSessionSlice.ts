@@ -3,12 +3,14 @@ import { Card, StatusEnum } from '@/types';
 
 interface CurrentSessionState {
   gameId: string | null;
+  sessionId: string | null;
   cards: Card[];
   retryCount: number;
 }
 
 const initialState: CurrentSessionState = {
   gameId: null,
+  sessionId: null,
   cards: [],
   retryCount: 0,
 };
@@ -17,8 +19,9 @@ const currentSessionSlice = createSlice({
   name: 'currentSession',
   initialState,
   reducers: {
-    startGame: (state, action: PayloadAction<{ gameId: string; cards: Card[] }>) => {
+    startGame: (state, action: PayloadAction<{ gameId: string; sessionId: string; cards: Card[] }>) => {
       state.gameId = action.payload.gameId;
+      state.sessionId = action.payload.sessionId;
       state.cards = action.payload.cards;
       state.retryCount = 0;
     },
@@ -30,6 +33,7 @@ const currentSessionSlice = createSlice({
     },
     endGame: (state) => {
       state.gameId = null;
+      state.sessionId = null;
       state.cards = [];
       state.retryCount = 0;
     },

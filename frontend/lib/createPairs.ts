@@ -19,7 +19,6 @@ export function createPairs(images: string[]): Card[] {
       position: index + 1,
       imageUrl: imageUrl,
       status: 'covered',
-      isFlipped: false,
     });
   });
 
