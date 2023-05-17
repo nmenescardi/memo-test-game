@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { Button } from '@mui/material';
 import { MemoTest as MemoTestType } from '@/types';
 import Link from 'next/link';
