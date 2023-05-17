@@ -26,7 +26,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const retryCount = useSelector((state: RootState) => state.currentSession.retryCount);
   const sessionId = useSelector((state: RootState) => state.currentSession.sessionId);
 
-  const score = calculateScore(retryCount, cards.length);
+  const score = calculateScore(retryCount, cards.length / 2);
   const [modalOpen, setModalOpen] = useState(false);
 
   const [createSession] = useMutation(createGameSession);

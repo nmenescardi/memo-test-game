@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class MemoTest extends Model
 {
@@ -36,7 +37,9 @@ class MemoTest extends Model
     {
         if ($attempts === 0) return 0;
 
-        return round($pairsAmount / $attempts) * 100;
+        $base = 1.05;
+
+        return (int) round($pairsAmount * pow($base, -$attempts) * 100);
     }
 
     public function gameSessions()

@@ -6,7 +6,9 @@ import { MemoTest } from '@/components/MemoTest';
 import { MemoTest as MemoTestType } from '@/types';
 
 export default function MemoTests() {
-  const { loading, error, data } = useQuery(getMemoTests);
+  const { loading, error, data } = useQuery(getMemoTests, {
+    fetchPolicy: 'network-only',
+  });
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error :(</div>;
