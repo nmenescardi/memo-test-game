@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             MemoTestSeeder::class,
-            GameSessionSeeder::class,
         ]);
     }
 }

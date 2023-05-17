@@ -36,8 +36,7 @@ services:
       - laravel
     restart: always
     command: >
-      bash -c "php artisan lighthouse:clear-cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
-
+        bash -c "php artisan lighthouse:clear-cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
 
   frontend:
     build:
