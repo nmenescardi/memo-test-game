@@ -1,16 +1,17 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemoTest } from '@/graphql/queries';
 import Card from './Card';
+import EndGameModal from './EndGameModal';
 import { StatusEnum } from '@/types';
 import { RootState } from '@/store/store';
 import { startGame } from '@/features/currentSession/currentSessionSlice';
 import { createPairs } from '@/lib/createPairs';
 import Link from 'next/link';
-import { modifyStatus, incrementRetryCount } from '@/features/currentSession/currentSessionSlice';
+import { modifyStatus, incrementRetryCount, endGame } from '@/features/currentSession/currentSessionSlice';
 import calculateScore from '@/lib/calculateScore';
 
 interface GameSessionProps {
@@ -23,6 +24,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const cards = useSelector((state: RootState) => state.currentSession.cards);
   const retryCount = useSelector((state: RootState) => state.currentSession.retryCount);
   const score = calculateScore(retryCount, cards.length);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const flippedCards = useRef<number[]>([]);
 
@@ -57,7 +59,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
         dispatch(modifyStatus({ position, status }));
 
         flippedCards.current = [];
-      }, 200);
+      }, 400);
     }
   };
 
@@ -72,6 +74,19 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
     }
   }, [isNewGameSession, gameId, dispatch, data]);
 
+  const allCardsMatched = cards.length > 0 && cards.every((card) => card.status === 'matched');
+
+  const endGameCallback = useCallback(() => {
+    // setModalOpen(false);
+    dispatch(endGame());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (allCardsMatched) {
+      setModalOpen(true);
+    }
+  }, [allCardsMatched, dispatch]);
+
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center">
@@ -83,24 +98,28 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const { memoTest } = data;
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold mb-4">Game: {memoTest.name}</h2>
-      <p className="text-xl font-bold mb-4">
-        Tries: <strong>{retryCount}</strong> | Score: <strong>{score}</strong>
-      </p>
-
-      <div className="grid grid-cols-5 gap-4">
-        {cards?.map((card) => (
-          <Card key={card.position} handleClick={handleClick} {...card} />
-        ))}
-      </div>
-
+    <>
       <div className="flex flex-col items-center justify-center">
-        <Link href={{ pathname: '/' }} className="mt-10">
-          ← Back Home
-        </Link>
+        <h2 className="text-2xl font-bold mb-4">Game: {memoTest.name}</h2>
+        <p className="text-xl font-bold mb-4">
+          Tries: <strong>{retryCount}</strong> | Score: <strong>{score}</strong>
+        </p>
+
+        <div className="grid grid-cols-5 gap-4">
+          {cards?.map((card) => (
+            <Card key={card.position} handleClick={handleClick} {...card} />
+          ))}
+        </div>
+
+        <div className="flex flex-col items-center justify-center">
+          <Link href={{ pathname: '/' }} className="mt-10">
+            ← Back Home
+          </Link>
+        </div>
       </div>
-    </div>
+
+      <EndGameModal open={modalOpen} retryCount={retryCount} score={score} endGameCallback={endGameCallback} />
+    </>
   );
 };
 
