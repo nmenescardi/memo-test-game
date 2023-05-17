@@ -5,12 +5,13 @@ import { useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMemoTest } from '@/graphql/queries';
 import Card from './Card';
-import { Card as CardType, StatusEnum } from '@/types';
+import { StatusEnum } from '@/types';
 import { RootState } from '@/store/store';
 import { startGame } from '@/features/currentSession/currentSessionSlice';
 import { createPairs } from '@/lib/createPairs';
 import Link from 'next/link';
-import { modifyStatus } from '@/features/currentSession/currentSessionSlice';
+import { modifyStatus, incrementRetryCount } from '@/features/currentSession/currentSessionSlice';
+import calculateScore from '@/lib/calculateScore';
 
 interface GameSessionProps {
   gameId: string;
@@ -20,6 +21,8 @@ interface GameSessionProps {
 const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   const dispatch = useDispatch();
   const cards = useSelector((state: RootState) => state.currentSession.cards);
+  const retryCount = useSelector((state: RootState) => state.currentSession.retryCount);
+  const score = calculateScore(retryCount, cards.length);
 
   const flippedCards = useRef<number[]>([]);
 
@@ -48,8 +51,7 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
           status = 'covered';
         }
 
-        // TODO Increase the retry count
-        // dispatch(incrementRetryCount());
+        dispatch(incrementRetryCount());
 
         dispatch(modifyStatus({ position: first, status }));
         dispatch(modifyStatus({ position, status }));
@@ -83,6 +85,9 @@ const GameSession: React.FC<GameSessionProps> = ({ gameId, isNewGame }) => {
   return (
     <div className="flex flex-col items-center justify-center">
       <h2 className="text-2xl font-bold mb-4">Game: {memoTest.name}</h2>
+      <p className="text-xl font-bold mb-4">
+        Tries: <strong>{retryCount}</strong> | Score: <strong>{score}</strong>
+      </p>
 
       <div className="grid grid-cols-5 gap-4">
         {cards?.map((card) => (
