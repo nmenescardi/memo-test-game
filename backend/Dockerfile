@@ -1,18 +1,25 @@
-FROM composer:2 as build
+FROM php:8-fpm
 
 WORKDIR /app
 
 COPY . .
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    zip \
+    unzip \
+    curl
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_mysql && \
+    docker-php-ext-enable pdo_mysql
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install project dependencies
 RUN composer install
-
-FROM php:8-fpm
-
-WORKDIR /app
-
-COPY --from=build /app .
-
-RUN docker-php-ext-install pdo pdo_mysql
 
 EXPOSE 8000
 
