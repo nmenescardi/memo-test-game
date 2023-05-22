@@ -1,17 +1,22 @@
-version: '3'
+version: '3.8'
 services:
   db:
-    image: mysql:5.7
+    image: mysql/mysql-server:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: laravel
       MYSQL_USER: laravel
       MYSQL_PASSWORD: laravel
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql:Z
     restart: always
     networks:
       - laravel
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -36,7 +41,7 @@ services:
       - laravel
     restart: always
     command: >
-        bash -c "composer install && php artisan lighthouse:clear-cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
+      bash -c "composer install && php artisan lighthouse:clear-cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000"
 
   frontend:
     build:
@@ -57,4 +62,5 @@ networks:
     driver: bridge
 
 volumes:
-  db_data: {}
+  db_data:
+    driver: local
